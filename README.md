@@ -20,37 +20,66 @@ This is not a single-prompt toy. It is a modular, extensible JD generation pipel
 
 ## 🏗️ High-Level Architecture
 
-Input  
-↓  
-Validation Node  
-↓  
-Draft Node  
-↓  
-Quality Check Node  
-↓  
-Rewrite Node (if required)  
-↓  
-Review Node  
-↓  
-Final Output  
+The Job Description Agent follows a deterministic, multi-stage agent pipeline.
+Each stage has a single responsibility and explicit control flow.
 
-Each node has a single responsibility, making the pipeline predictable, testable, and scalable.
+```mermaid
+flowchart TD
+    A(Start) --> B[Validation]
+
+    B -->|Valid| C[Draft]
+    B -->|Invalid| Z(End)
+
+    C --> D{Quality Check}
+
+    D -->|Rewrite| E[Rewrite]
+    E --> D
+
+    D -->|Pass| F[Review]
+    F --> G[Final Output]
+    G --> Z(End)
+```
+
+### Flow Explanation
+
+1. **Validation**
+   - Verifies required fields and normalizes input
+   - Invalid inputs terminate the pipeline early
+
+2. **Draft**
+   - Generates the first structured Job Description draft
+
+3. **Quality Check**
+   - Evaluates structure, clarity, realism, and completeness
+   - Decides whether a rewrite is required
+
+4. **Rewrite (Loop)**
+   - Iteratively improves the draft until quality thresholds are met
+
+5. **Review**
+   - Final polish for consistency, tone, and ATS readiness
+
+6. **Final Output**
+   - Produces the finalized Job Description
 
 ---
 
 ## 📁 Project Structure
 
+```text
 Prod_JD_Agent/
 ├── app.py                 # Entry point (Streamlit / runner)
 ├── jd_agent/
 │   ├── agent.py           # Agent graph definition
 │   ├── nodes/             # Individual agent nodes
-│   ├── state/             # State & validation schemas
+│   ├── state/           # State & validation schemas
 │   ├── prompts/           # Prompt templates
 │   └── utils/             # Helpers, logging, utilities
 ├── .env.example           # Environment variable template
 ├── .gitignore
 └── README.md
+```
+
 
 ---
 
@@ -145,3 +174,4 @@ AI Engineer | Agent Architect | Applied LLM Systems
 ## 📜 License
 
 MIT License
+
